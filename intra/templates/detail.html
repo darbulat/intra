@@ -12,9 +12,9 @@
     {% endif %}
     {% if object.id == user_id %}
         <a href="{% url 'update_profile' %}">Update</a>
-    {% else %}
-    <a class="button" href="{% url 'update_profile' %}">Send message</a>
     {% endif %}
+    <br>
+    <a class="btn btn-primary" role="button" href="{% url 'chat_detail' user_id=object.id %}">Send message</a>
         <div style="display: flex; justify-content: space-between">
     <div>
       <h3 style=" color: rgb(125, 125, 125)">

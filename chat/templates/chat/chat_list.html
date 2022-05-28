@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% load bootstrap3 %} {% load i18n %}
-{% block title %}{{ user.username }}'s Publications | {% endblock title %}
+{% block title %}{{ user.username }}'s messages | {% endblock title %}
 {% block content %}
 {% include 'nav.html' %}
     <h1>My messages</h1>
@@ -21,11 +21,11 @@
         <td>{{ message.user }}</td>
         <td>{{ message.date|date:'Y-m-d H:i' }}</td>
         <td>
-          <a
-            href="#"
-            class="btn btn-info"
-            >Read</a
-          >
+            {% if request.user.id == message.recipient.id %}
+          <a href="{% url 'chat_detail' user_id=message.user.id %}" class="btn btn-info">Read</a>
+            {% else %}
+          <a href="{% url 'chat_detail' user_id=message.recipient.id %}" class="btn btn-info">Read</a>
+            {% endif %}
         </td>
       </tr>
       {% endfor %}

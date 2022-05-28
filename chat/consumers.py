@@ -1,22 +1,25 @@
 import json
 
 from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
+
+from chat.models import MessageModel
 from intra.models import User
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        user = self.scope["user"]
-        if not user.is_authenticated:
-            return
-        user_id = user.id
+        my_id = self.scope['user'].id
+        other_user_id = self.scope['url_route']['kwargs']['id']
+        if int(my_id) > int(other_user_id):
+            self.room_name = f'{my_id}-{other_user_id}'
+        else:
+            self.room_name = f'{other_user_id}-{my_id}'
 
-        self.room_name = user_id
         self.room_group_name = 'chat_%s' % self.room_name
-        username = self.scope['user'].username
-        # Join room group
+
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -49,6 +52,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         username = text_data_json['user']
+        recipient_id = text_data_json['recipient_id']
+        await self.save_message(body=message, recipient_id=recipient_id, username=username)
         # Send message to room group
         await self.send_message_to_chatroom(message, username)
 
@@ -59,3 +64,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'message': message
         }))
+
+    @database_sync_to_async
+    def save_message(self, body: str, recipient_id: int, username: str):
+        user = User.objects.get(username=username)
+        MessageModel.objects.create(user=user, recipient_id=recipient_id, body=body)

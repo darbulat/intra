@@ -1,15 +1,9 @@
-<!-- chat/templates/chat/room.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    {% load bootstrap3 %}
-    <title>Chat Room | {{ room_name }}</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    {% load static %}
-    <style>
+{% extends 'base.html' %} {% load bootstrap3 %} {% load i18n %}
+{% block title %}{{ user.username }}'s messages | {% endblock title %}
+{% block content %}
+{% include 'nav.html' %}
+
+<style>
 .titanic {
     float: none;
 }
@@ -115,37 +109,41 @@
 body {
     font-size: 15px;
 }
-
     </style>
-</head>
-<body>
+
     {% for room in rooms %}
         <a class="btn btn-primary" href="{% url 'room' room %}">{{ room }} </a>
     {% endfor %}
 
-    {{ room_name|json_script:"room-name" }}
+    {{ user_id|json_script:"user_id" }}
 
     <div class="container">
         <div class="page-header">
-            <h1>Welcome to <strong>{{ room_name }}</strong> chat
+            <h1>Text to <strong>{{ recipient_first_name }} {{ recipient_last_name }} ({{ recipient_username }})</strong>
             </h1>
         </div>
         <div class="row">
-            <div class="col-md-4">
-                <div id="user-list" class="list-group">
-                    <a href="" class="list-group-item disabled">
-                        <h4 class="list-group-item-heading">Users</h4>
-                        {# Users go here #}
-                    </a>
-                </div>
-            </div>
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <h4 class="panel-title">Chat</h4>
                     </div>
                     <div>
                         <ul id="messages" class="messages">
+                            {% for message in message_list %}
+                                {% if message.user.id == request.user.id %}
+                                    <li class="message right">
+                                {% else %}
+                                    <li class="message left">
+                                {% endif %}
+                                    <div class="avatar">{{ message.user.username }}</div>
+                                    <div class="text_wrapper">
+                                        <div class="text">
+                                            {{ message.body }}<br>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
                             {# Messages go here #}
                         </ul>
                     </div>
@@ -174,7 +172,9 @@ let currentUser = '{{ request.user.username }}';
 let chatInput = $('#chat-input');
 let chatButton = $('#btn-send');
 let messageList = $('#messages');
-let userList = $('#user-list');
+
+messageList.animate({scrollTop: messageList.prop('scrollHeight')});
+
 
 function drawMessage(message) {
     let position = 'left';
@@ -190,30 +190,19 @@ function drawMessage(message) {
                 </div>
             </li>`;
     $(messageItem).appendTo('#messages');
-
-        userList.children('.user').remove();
-        for (let i = 0; i < message.user_list.length; i++) {
-            const userItem = `<a class="list-group-item user">${message.user_list[i]}</a>`;
-            $(userItem).appendTo('#user-list');
-        }
-        $('.user').click(function () {
-            userList.children('.active').removeClass('active');
-            let selected = event.target;
-            $(selected).addClass('active');
-            setCurrentRecipient(selected.text);
-        });
-
     messageList.animate({scrollTop: messageList.prop('scrollHeight')});
 }
 
 $(document).ready(function () {
-
-    const roomName = JSON.parse(document.getElementById('room-name').textContent);
+debugger;
+    const user_id = JSON.parse(document.getElementById('user_id').textContent);
 
     const chatSocket = new WebSocket(
         'ws://'
         + window.location.host
         + '/ws/chat/'
+        + user_id
+        + '/'
     );
 
     chatSocket.onmessage = function(e) {
@@ -233,8 +222,10 @@ $(document).ready(function () {
 
     chatButton.click(function () {
         if (chatInput.val().length > 0) {
+            debugger;
             chatSocket.send(JSON.stringify({
                 'message': chatInput.val(),
+                'recipient_id': user_id,
                 'user': currentUser
             }));
             chatInput.val('');
@@ -243,14 +234,9 @@ $(document).ready(function () {
 
 
 });
-
-
     </script>
     <script>
 
     </script>
 
-
-
-</body>
-</html>
+{% endblock content %}
