@@ -1,0 +1,16 @@
+{% extends 'base.html' %}{% load i18n %}
+{% load bootstrap3 %}
+
+{% block title %}{% trans 'Login' %} | {% endblock %}
+
+{% block content %}
+<div>
+  {% include 'nav.html' %}
+    <h1>{% trans 'Login' %}</h1>
+    <form action="{% url 'login' %}" method="post" class="form">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% buttons submit='OK' reset="Cancel" %}{% endbuttons %}
+  </form>
+</div>
+{% endblock content %}

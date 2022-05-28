@@ -1,0 +1,42 @@
+{% extends 'base.html' %} {% load bootstrap3 %}{% load i18n %}
+{% block title %}{{ object.title }} | {% endblock title %}
+{% block content %}
+{% include 'nav.html' %}
+    <h1>{% trans 'Profile' %}</h1>
+    <div>
+  <h1>{{ object.first_name }} {{ object.last_name }}</h1>
+    {% if object.picture %}
+    <img width="150" src="{{ object.picture.url }}" alt="{{ object.picture }}">
+        <br>
+        <br>
+    {% endif %}
+    {% if object.id == user_id %}
+        <a href="{% url 'update_profile' %}">Update</a>
+    {% else %}
+    <a class="button" href="{% url 'update_profile' %}">Send message</a>
+    {% endif %}
+        <div style="display: flex; justify-content: space-between">
+    <div>
+      <h3 style=" color: rgb(125, 125, 125)">
+        First name - {{ object.first_name }}
+      </h3>
+      <h3 style=" color: rgb(125, 125, 125)">
+        Last name - {{ object.last_name }}
+      </h3>
+      <h3 style=" color: rgb(125, 125, 125)">
+        Email - {{ object.email }}
+      </h3>
+      <h3 style=" color: rgb(125, 125, 125)">
+        Description - {{ object.description }}
+      </h3>
+      <h3 style=" color: rgb(125, 125, 125)">
+      </h3>
+
+    </div>
+
+  </div>
+  <hr />
+  <div class="lead">
+  </div>
+</div>
+{% endblock %}

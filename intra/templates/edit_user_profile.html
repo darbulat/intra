@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% load i18n %}
+{% load bootstrap3 %}
+
+{% block title %}{% trans 'Update profile' %} | {% endblock %}
+
+{% block content %}
+    <div>
+        {% include 'nav.html' %}
+        <h1>{% trans 'Update profile' %}</h1>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {% buttons submit='OK' reset="Cancel" %}{% endbuttons %}
+        </form>
+</div>
+{% endblock %}
