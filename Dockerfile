@@ -7,6 +7,7 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y \
     daphne \
+    gunicorn \
     python3.8 \
     python3-dev \
     python3-setuptools \

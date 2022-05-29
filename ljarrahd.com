@@ -29,15 +29,11 @@ server {
     }
 
     location /static {
-        alias /project/rush01/static;
+        alias /project/static;
     }
     location /media {
-        alias /project/rush01/media;
+        alias /project/media;
     }
-    # disable all robots
-    location /robots.txt {
-        return 200 "User-agent: *\nDisallow: /";
 
-    }
 }
 
